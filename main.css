@@ -1,0 +1,86 @@
+
+:root {
+  --main-bg-color: #0C1021;
+  --main-fg-color: #98fb98;
+  --help-bg-color: #e6db77;
+  --help-bg-color-border: #e6df07;
+  --alt-file-color: #e8f48c;
+}
+body {
+  background-color: black;
+  font-family: "Inconsolata", monospace;
+}
+@font-face {
+  font-family: 'Inconsolata';
+  src: url('assets/Inconsolata.otf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+.container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -moz-transform: translateX(-50%) translateY(-50%);
+  -webkit-transform: translateX(-50%) translateY(-50%);
+  transform: translateX(-50%) translateY(-50%);
+}
+.panel {
+  position: absolute;
+  top: 20%;
+  left: 1%;
+}
+.panel-item {
+  font-size: 25px;
+  color: white;
+}
+.button {
+  font-size: 40px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -moz-transform: translateX(-50%) translateY(-50%);
+  -webkit-transform: translateX(-50%) translateY(-50%);
+  transform: translateX(-50%) translateY(-50%);
+  background-color: darkgray;
+  border-radius: 5px;
+  color: white;
+  visibility: hidden;
+  justify-content: center;
+  line-height: 1;
+  height: 48px;
+  align-items: center;
+  padding-left: 16px;
+  padding-right: 16px;
+
+}
+.container:hover  > #pausePlay { visibility: visible; }
+.container:hover {
+  cursor:pointer;
+}
+.dom-container {
+  display:grid;
+  grid-template-columns: repeat(40,20px);
+  grid-gap: 1px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -moz-transform: translateX(-50%) translateY(-50%);
+  -webkit-transform: translateX(-50%) translateY(-50%);
+  transform: translateX(-50%) translateY(-50%);
+}
+.pixel {
+  width: 20px;
+  height: 20px;
+}
+kbd {
+  background: var(--help-bg-color);
+  border-radius: 3px;
+  border: 1px solid var(--help-bg-color-border);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, .2), 0 1px 0 0 rgba(255, 255, 255, .7) inset;
+  color: #333;
+  display: inline-block;
+  font-weight: 700;
+  padding: 1px 1px;
+  white-space: nowrap;
+  font-family: "Inconsolata", monospace;
+}
