@@ -14,12 +14,9 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
   let cursorYPosition = 10;
   let currentXPosArray,currentYPosArray;
 
-  let flushRemaining = 0;
-
   const MAX_SMOOTHING_DELAY = 0x0F;
   let smoothingDelay = 0x0c;
   let currentSymmetrySettingForStep = 0x02;
-  let newSymmetrySetting = currentSymmetrySettingForStep;
   let currentPatternIndex = 0x00;
 
   let pixelXPositionArray = new Array(ARRAY_SIZE).fill(0); 
@@ -70,23 +67,21 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
   function PaintPixelForCurrentSymmetry(pixelXPosition, pixelYPosition, colorIndexForCurrentPixel) {
     paintPixel(pixelXPosition, pixelYPosition, colorIndexForCurrentPixel);
 
-    let flush = flushRemaining && (flushRemaining < currentIndexToPixelBuffers);
-
-    if (!currentSymmetrySettingForStep && !flush) {
+    if (!currentSymmetrySettingForStep) {
       return;
     }
 
     const symmPixelXPosition = NUM_COLS - pixelXPosition;
     paintPixel(symmPixelXPosition, pixelYPosition, colorIndexForCurrentPixel);
 
-    if (currentSymmetrySettingForStep == 0x01 && !flush) {
+    if (currentSymmetrySettingForStep == 0x01) {
       return;
     }
 
     const symmPixelYPosition = NUM_ROWS - pixelYPosition;
     paintPixel(pixelXPosition, symmPixelYPosition, colorIndexForCurrentPixel);
 
-    if (currentSymmetrySettingForStep == 0x02 && !flush) {
+    if (currentSymmetrySettingForStep == 0x02) {
       return;
     }
 
@@ -158,21 +153,6 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
       }
 
       let colorIndexForCurrentPixel = currentColorIndexArray[currentIndexToPixelBuffers];
-
-
-      let shouldFlush = (currentSymmetrySettingForStep != newSymmetrySetting);
-      // Stop flushing the remaining pixels after a symmetry change.
-      if (!currentIndexToPixelBuffers && !colorIndexForCurrentPixel && !shouldFlush) {
-        flushRemaining = 0;
-      }
-      // Start flushing the pixels after a symmetry change.
-      // FIXME: Magic numbers here. This is the point in our loop through currentIndexToPixelBuffers
-      // which ensures nearly all the pixels from the old symmetry are flushed. It also means the
-      // switch is delayed.
-      if (shouldFlush && !colorIndexForCurrentPixel && currentIndexToPixelBuffers == 1024) {
-        currentSymmetrySettingForStep = newSymmetrySetting;
-        flushRemaining = currentIndexToPixelBuffers;
-      }
 
       let pixelXPosition = pixelXPositionArray[currentIndexToPixelBuffers];
       let pixelYPosition = pixelYPositionArray[currentIndexToPixelBuffers];
@@ -251,8 +231,9 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
   /* Interface Function */
   function updateSymmetry() {
     const MAX_SETTINGS = 0x03;
-    newSymmetrySetting = ++currentSymmetrySettingForStep & MAX_SETTINGS;
-    return c.symmetries[newSymmetrySetting];
+    currentSymmetrySettingForStep = ++currentSymmetrySettingForStep & MAX_SETTINGS;
+    if (!currentSymmetrySettingForStep) clearCanvas();
+    return c.symmetries[currentSymmetrySettingForStep];
   }
 
   function updateSmoothingDelay() {
