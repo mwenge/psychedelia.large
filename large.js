@@ -86,7 +86,7 @@ function createCanvas() {
       imageData.data[(o*4)+i] = rgba[i];
     }
   }
-  function updateCanvas(fx,fy,tx,ty) {
+  function updateCanvas() {
     bufferCtx.putImageData(imageData,0,0);
     ctx.drawImage(bufferCanvas,0,0);
   }
