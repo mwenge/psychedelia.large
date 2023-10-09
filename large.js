@@ -90,6 +90,10 @@ function createCanvas() {
     bufferCtx.putImageData(imageData,0,0);
     ctx.drawImage(bufferCanvas,0,0);
   }
+  function clearCanvas() {
+    ctx.clearRect(0,0, canvas.width, canvas.height);
+    imageData = bufferCtx.createImageData(NUM_COLS * SCALE_FACTOR, NUM_ROWS * SCALE_FACTOR);
+  }
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
   canvas.width = NUM_COLS * SCALE_FACTOR;
@@ -104,13 +108,12 @@ function createCanvas() {
     .fill(0).map(x => [0,0,0,255]).flat());
   let imageData = new ImageData(imgData, NUM_COLS * SCALE_FACTOR, NUM_ROWS * SCALE_FACTOR);
 
-
-  return {canvas: canvas, updateImage: updateImage, updateCanvas: updateCanvas};
+  return {canvas: canvas, updateImage: updateImage, updateCanvas: updateCanvas, clearCanvas: clearCanvas};
 }
 
 function largePsychedelia() {
   let c = createCanvas();
   container.appendChild(c.canvas);
-  return psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, c.updateCanvas, c.updateImage, DEMO_MODE, ARRAY_SIZE, MAX_INDEX_VALUE);
+  return psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, c.updateCanvas, c.updateImage, c.clearCanvas, DEMO_MODE, ARRAY_SIZE, MAX_INDEX_VALUE);
 }
 

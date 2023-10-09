@@ -26,6 +26,7 @@ export const patterns = [
   [psy.xArray, psy.yArray],
   [bull.xArray, bull.yArray],
   [mistake.xArray, mistake.yArray],
+  [bull.xArray, bull.yArray],
 ];
 export const names = [
   'Mandelbrot',
@@ -35,5 +36,6 @@ export const names = [
   'Psych',
   'Bull',
   'Mistake',
+  'Bull',
 ];
 

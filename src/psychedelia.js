@@ -1,7 +1,7 @@
 import * as pattern from "./patterns.js";
 import * as c from './constants.js'
 
-export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, updateImage, DEMO_MODE = false,
+export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, updateImage, clearCanvas, DEMO_MODE = false,
                             ARRAY_SIZE = 64, MAX_INDEX_VALUE = 0x1F) {
 
   const COLOR_MAX = 0x07;
@@ -262,10 +262,11 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
   }
 
   function updatePattern() {
-    currentPatternIndex = ++currentPatternIndex & pattern.patterns.length;
+    clearCanvas();
+    const MAX_SETTINGS = 0x07;
+    currentPatternIndex = ++currentPatternIndex & MAX_SETTINGS;
     [currentXPosArray, currentYPosArray] = pattern.patterns[currentPatternIndex];
     return pattern.names[currentPatternIndex];
-
   }
 
   function pausePlay() {
