@@ -2,7 +2,7 @@ import * as pattern from "./patterns.js";
 import * as c from './constants.js'
 
 export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, updateImage, clearCanvas, DEMO_MODE = false,
-                            ARRAY_SIZE = 64, MAX_INDEX_VALUE = 0x1F) {
+                            ARRAY_SIZE = 64, BUFFER_LENGTH = 0x1F) {
 
   const COLOR_MAX = 0x07;
   const MAX_ELEMENTS = 100;
@@ -132,11 +132,14 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
     let runs = 0;
     while (true) {
       runs++;
-      if (runs % Math.floor(MAX_INDEX_VALUE/8) == 0) {
+      if (runs % Math.floor(BUFFER_LENGTH/8) == 0) {
         interruptHandler();
         continue;
       }
-      currentIndexToPixelBuffers = ++currentIndexToPixelBuffers & MAX_INDEX_VALUE;
+      currentIndexToPixelBuffers++;
+      if (currentIndexToPixelBuffers >= BUFFER_LENGTH) {
+        currentIndexToPixelBuffers = 0;
+      }
 
 
       // Wait for this to hit zero before actually painting the pixels.
@@ -161,7 +164,7 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
 
       currentColorIndexArray[currentIndexToPixelBuffers] = --currentColorIndexArray[currentIndexToPixelBuffers] & 0xFF;
 
-      if (runs > MAX_INDEX_VALUE/2) {
+      if (runs > BUFFER_LENGTH/2) {
         break;
       }
     }
@@ -177,7 +180,9 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
    */
   function interruptHandler() {
     indexIntoArrays++;
-    indexIntoArrays = indexIntoArrays & MAX_INDEX_VALUE;
+    if (indexIntoArrays >= BUFFER_LENGTH) {
+      indexIntoArrays = 0;
+    }
 
     if (currentColorIndexArray[indexIntoArrays] != 0xFF) {
       return;
@@ -227,6 +232,16 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
   }
 
   /* Interface Functions */
+  function updateBufferLength() {
+    const MAX_SETTINGS = 0xEFF;
+    BUFFER_LENGTH += 0x80;
+    if (BUFFER_LENGTH >= MAX_SETTINGS) {
+      clearCanvas();
+      BUFFER_LENGTH = 0x1FF;
+    }
+    return BUFFER_LENGTH;
+  }
+
   function updateSymmetry() {
     const MAX_SETTINGS = 0x03;
     currentSymmetrySettingForStep = ++currentSymmetrySettingForStep & MAX_SETTINGS;
@@ -309,5 +324,6 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
     updateSmoothingDelay: updateSmoothingDelay,
     updatePattern: updatePattern,
     addMovements: addMovements,
+    updateBufferLength: updateBufferLength,
   };
 }

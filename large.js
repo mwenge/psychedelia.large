@@ -12,12 +12,13 @@ const NUM_ROWS = 0x2FF;
 const SCALE_FACTOR = 1;
 const DEMO_MODE = false;
 const ARRAY_SIZE = 0xFFF;
-const MAX_INDEX_VALUE = 0x7FF;
+const BUFFER_LENGTH = 0x780;
 
 let psy = largePsychedelia();
 symmetry.textContent = psy.updateSymmetry();
 pattern.textContent = psy.updatePattern();
 delay.textContent = psy.updateSmoothingDelay();
+buffer.textContent = psy.updateBufferLength();
 demo.textContent = (psy.pausePlay()) ? "On" : "Off";
 
 
@@ -30,6 +31,13 @@ document.body.addEventListener('keyup', (event) => {
 
 document.body.addEventListener('keydown', (event) => {
   const keyName = event.key;
+  if (keyName == 'b') {
+    event.preventDefault();
+    event.stopPropagation();
+    const newValue = psy.updateBufferLength();
+    buffer.textContent = newValue;
+    return;
+  }
   if (keyName == 's') {
     event.preventDefault();
     event.stopPropagation();
@@ -110,6 +118,6 @@ function createCanvas() {
 function largePsychedelia() {
   let c = createCanvas();
   container.appendChild(c.canvas);
-  return psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, c.updateCanvas, c.updateImage, c.clearCanvas, DEMO_MODE, ARRAY_SIZE, MAX_INDEX_VALUE);
+  return psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, c.updateCanvas, c.updateImage, c.clearCanvas, DEMO_MODE, ARRAY_SIZE, BUFFER_LENGTH);
 }
 
