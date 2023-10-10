@@ -132,7 +132,7 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
     let runs = 0;
     while (true) {
       runs++;
-      if (runs % Math.floor(MAX_INDEX_VALUE/6) == 0) {
+      if (runs % Math.floor(MAX_INDEX_VALUE/8) == 0) {
         interruptHandler();
         continue;
       }
@@ -178,6 +178,7 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
   function interruptHandler() {
     indexIntoArrays++;
     indexIntoArrays = indexIntoArrays & MAX_INDEX_VALUE;
+
     if (currentColorIndexArray[indexIntoArrays] != 0xFF) {
       return;
     }
@@ -188,14 +189,11 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
     initialFramesRemainingToNextPaintForStep[indexIntoArrays] = smoothingDelay;
     framesRemainingToNextPaintForStep[indexIntoArrays] = smoothingDelay;
 
-    //updateXPos(1);
-    //return;
-
     if (DEMO_MODE) {
       randomCursorUpdate();
       return;
     }
-    move();
+    updateCursor();
   }
 
   function LaunchPsychedelia() {
@@ -228,7 +226,7 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
     updateYPos(randY);
   }
 
-  /* Interface Function */
+  /* Interface Functions */
   function updateSymmetry() {
     const MAX_SETTINGS = 0x03;
     currentSymmetrySettingForStep = ++currentSymmetrySettingForStep & MAX_SETTINGS;
@@ -252,19 +250,34 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
 
   function pausePlay() {
     DEMO_MODE = !DEMO_MODE;
-    if (DEMO_MODE) {
-      window.requestAnimationFrame(MainPaintLoop);
-    }
     return DEMO_MODE;
   }
 
-  function moveUp() { directionY = 0; }
-  function moveDown() { directionY = 1; }
-  function moveLeft() { directionX = 0; }
-  function moveRight() { directionX = 1; }
-  function move() {
-    (directionX) ? updateXPos(1): updateXPos(-1);
-    (directionY) ? updateYPos(1): updateYPos(-1);
+  const MOVES = 25;
+  let xMovements = [];
+  let yMovements = [];
+  const movesUp = new Array(MOVES).fill(-1); 
+  const movesDown = new Array(MOVES).fill(1); 
+  const movesLeft = new Array(MOVES).fill(-1); 
+  const movesRight = new Array(MOVES).fill(1); 
+  function addMovements(keys) {
+    if (keys & 0x01) {
+      yMovements.push(...movesUp);
+    }
+    if (keys & 0x02) {
+      yMovements.push(...movesDown);
+    }
+    if (keys & 0x04) {
+      xMovements.push(...movesLeft);
+    }
+    if (keys & 0x08) {
+      xMovements.push(...movesRight);
+    }
+  }
+
+  function updateCursor() {
+    if (xMovements.length) updateXPos(xMovements.pop());
+    if (yMovements.length) updateYPos(yMovements.pop());
   }
 
   function updateXPos(x) {
@@ -295,9 +308,6 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
     updateSymmetry: updateSymmetry,
     updateSmoothingDelay: updateSmoothingDelay,
     updatePattern: updatePattern,
-    moveUp: moveUp,
-    moveDown: moveDown,
-    moveLeft: moveLeft,
-    moveRight: moveRight,
+    addMovements: addMovements,
   };
 }

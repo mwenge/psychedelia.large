@@ -20,6 +20,13 @@ body {
   font-size: 25px;
   color: white;
 }
+.intro {
+  font-size: 15px;
+  color: white;
+}
+a {
+  color: grey;
+}
 .container {
   position: absolute;
   top: 50%;

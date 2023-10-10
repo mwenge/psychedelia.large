@@ -1,5 +1,12 @@
 import {psychedelia} from "./src/psychedelia.js";
 
+const arrowKeys = {
+  'ArrowUp':    0x01,
+  'ArrowDown':  0x02, 
+  'ArrowLeft':  0x04, 
+  'ArrowRight': 0x08,
+};
+
 const NUM_COLS = 0x3FF;
 const NUM_ROWS = 0x2FF;
 const SCALE_FACTOR = 1;
@@ -12,6 +19,14 @@ symmetry.textContent = psy.updateSymmetry();
 pattern.textContent = psy.updatePattern();
 delay.textContent = psy.updateSmoothingDelay();
 demo.textContent = (psy.pausePlay()) ? "On" : "Off";
+
+
+let keysPressed = 0x00;
+document.body.addEventListener('keyup', (event) => {
+  if (!event.repeat && arrowKeys[event.key]) {
+    keysPressed = keysPressed ^ arrowKeys[event.key];
+  }
+});
 
 document.body.addEventListener('keydown', (event) => {
   const keyName = event.key;
@@ -44,40 +59,21 @@ document.body.addEventListener('keydown', (event) => {
     return;
   }
 
-  if (keyName == 'ArrowUp') {
-    event.preventDefault();
-    event.stopPropagation();
-    psy.moveUp();
-    return;
+  if (!arrowKeys[keyName]) {
+    return
   }
 
-  if (keyName == 'ArrowDown') {
-    event.preventDefault();
-    event.stopPropagation();
-    psy.moveDown();
-    return;
-  }
-
-  if (keyName == 'ArrowLeft') {
-    event.preventDefault();
-    event.stopPropagation();
-    psy.moveLeft();
-    return;
-  }
-
-  if (keyName == 'ArrowRight') {
-    event.preventDefault();
-    event.stopPropagation();
-    psy.moveRight();
-    return;
-  }
-
+  event.preventDefault();
+  event.stopPropagation();
+  keysPressed = keysPressed | arrowKeys[keyName];
+  psy.addMovements(keysPressed);
 });
 
 container.addEventListener('click', pressPausePlay);
 function pressPausePlay() {
   let playing = psy.pausePlay();
   pausePlay.innerHTML = (playing) ? "⏸":"▶" 
+  demo.textContent = (playing) ? "On" : "Off";
 }
 
 function createCanvas() {
