@@ -40,6 +40,8 @@ rest of the listing and, once done, executing those numbers as a machine code
 program. Rather what we're interested in is the assembly instructions that
 underlie that long list of numbers. For example:
 
+![snippet](https://github.com/mwenge/psychedelia.js/assets/58846/5e443a03-cede-4a90-b2b1-81c71a9d415d)
+
 To give you an idea of how we get from raw numbers to an assembly program in practice I'll show you how
 a little routine I call `PaintPixel` appears in the listing. Here it is:
 
