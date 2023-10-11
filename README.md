@@ -153,11 +153,116 @@ ActuallyPaintPixel
   LDX colorIndexForCurrentPixel                          const newColor = presetColorValuesArray[colorIndexForCurrentPixel];
   LDA presetColorValuesArray,X                           
   STA (currentLineForPixelInColorRamLoPtr),Y             pixel_matrix[x] = newColor;
-  RTS                                                    
-                                                         const rgba = c.RGBs[newColor];
-                                                         const o = ((pixelYPos * SCALE_FACTOR) * (NUM_COLS * SCALE_FACTOR)) + (pixelXPos * SCALE_FACTOR);
+  RTS                                                    return;
                                                      }
 ```
+
+The core of Psychedelia is contained in this routine and just two others: `LoopThroughPatternAndPaint` and `PaintPixelForCurrentSymmetry`. They are called in
+the following order:
+```
+-> `LoopThroughPatternAndPaint`
+  -> `PaintPixelForCurrentSymmetry`
+    -> `PaintPixel`
+```   
+`PaintPixelForCurrentSymmetry` is the simplest of the three, it figures out how many copies of the current pattern to paint. For example, if the current symmetry setting is 'Quad' it will paint 4 copies
+of the pattern perpendicular to each other. Despite its simplicity it's verbose compared to the Javascript implementation. It gives you a real sense of the detail management required
+when writing assembly. 
+
+```asm
+PaintPixelForCurrentSymmetry                                   function PaintPixelForCurrentSymmetry(pixelXPosition, pixelYPosition, colorIndexForCurrentPixel) {
+        ; First paint the normal pattern without any                                                                                                             
+        ; symmetry.                                                                                                                                              
+        LDA pixelXPosition                                                                                                                                       
+        PHA                                                                                                                                                      
+        LDA pixelYPosition                                                                                                                                       
+        PHA                                                                                                                                                      
+        JSR PaintPixel                                           paintPixel(pixelXPosition, pixelYPosition, colorIndexForCurrentPixel);                          
+                                                                                                                                                                 
+        LDA currentSymmetrySettingForStep                                                                                                                        
+        BNE HasSymmetry                                                                                                                                          
+                                                                                                                                                                 
+CleanUpAndReturnFromSymmetry                                     if (!currentSymmetrySettingForStep) {                                                           
+        PLA                                                        return;                                                                                       
+        STA pixelYPosition                                       }                                                                                               
+        PLA                                                                                                                                                      
+        STA pixelXPosition                                                                                                                                       
+        RTS                                                                                                                                                      
+                                                                                                                                                                 
+HasSymmetry                                                                                                                                                      
+        CMP #X_AXIS_SYMMETRY                                                                                                                                     
+        BEQ XAxisSymmetry                                                                                                                                        
+                                                                                                                                                                 
+        ; Has a pattern to paint on the Y axis                                                                                                                   
+        ; symmetry so prepare for that.                                                                                                                          
+        LDA #$27                                                                                                                                                 
+        SEC                                                                                                                                                      
+        SBC pixelXPosition                                                                                                                                       
+        STA pixelXPosition                                                                                                                                       
+                                                                                                                                                                 
+        ; If it has X_Y_SYMMETRY then we just                                                                                                                    
+        ; need to paint that, and we're done.                                                                                                                    
+        LDY currentSymmetrySettingForStep                                                                                                                        
+        CPY #X_Y_SYMMETRY                                                                                                                                        
+        BEQ XYSymmetry                                                                                                                                           
+                                                                                                                                                                 
+        ; If we're here it's either Y_AXIS_SYMMETRY                                                                                                              
+        ; or QUAD_SYMMETRY so we can paint a pattern              const symmPixelXPosition = NUM_COLS - pixelXPosition;                                          
+        ; on the Y axis.                                          paintPixel(symmPixelXPosition, pixelYPosition, colorIndexForCurrentPixel);                     
+        JSR PaintPixel                                                                                                                                           
+                                                                                                                                                                 
+        ; If it's Y_AXIS_SYMMETRY we're done and can                                                                                                             
+        ; return.                                                                                                                                                
+        LDA currentSymmetrySettingForStep                         if (currentSymmetrySettingForStep == 0x01) {                                                   
+        CMP #Y_AXIS_SYMMETRY                                        return;                                                                                      
+        BEQ CleanUpAndReturnFromSymmetry                          }                                                                                              
+                                                                                                                                                                 
+        ; Has QUAD_SYMMETRY so the remaining steps are                                                                                                           
+        ; to paint two more: one on our X axis and one                                                                                                           
+        ; on our Y axis.                                                                                                                                         
+                                                                                                                                                                 
+        ; First we do the Y axis.                                                                                                                                
+        LDA #$17                                                                                                                                                 
+        SEC                                                                                                                                                      
+        SBC pixelYPosition                                                                                                                                       
+        STA pixelYPosition                                        const symmPixelYPosition = NUM_ROWS - pixelYPosition;                                          
+        JSR PaintPixel                                            paintPixel(pixelXPosition, symmPixelYPosition, colorIndexForCurrentPixel);                     
+                                                                                                                                                                 
+        ; Paint one on the X axis.                                                                                                                               
+PaintXAxisPixelForSymmetry                                                                                                                                       
+        PLA                                                                                                                                                      
+        TAY                                                                                                                                                      
+        PLA                                                                                                                                                      
+        STA pixelXPosition                                                                                                                                       
+        TYA                                                                                                                                                      
+        PHA                                                                                                                                                      
+        JSR PaintPixel                                                                                                                                           
+        PLA                                                                                                                                                      
+        STA pixelYPosition                                                                                                                                       
+        RTS                                                                                                                                                      
+                                                                                                                                                                 
+XAxisSymmetry                                                                                                                                                    
+        LDA #$17                                                                                                                                                 
+        SEC                                                                                                                                                      
+        SBC pixelYPosition                                                                                                                                       
+        STA pixelYPosition                                                                                                                                       
+        JMP PaintXAxisPixelForSymmetry                                                                                                                           
+                                                                                                                                                                 
+XYSymmetry                                                         if (currentSymmetrySettingForStep == 0x02) {                                                  
+        LDA #$17                                                     return;                                                                                     
+        SEC                                                        }                                                                                             
+        SBC pixelYPosition                                                                                                                                       
+        STA pixelYPosition                                         paintPixel(symmPixelXPosition, symmPixelYPosition, colorIndexForCurrentPixel);                
+        JSR PaintPixel                                           }                                                                                               
+        PLA                                                                                                                                                      
+        STA pixelYPosition                                                                                                                                       
+        PLA                                                                                                                                                      
+        STA pixelXPosition                                                                                                                                       
+        RTS                                                                                                                                                      
+
+```
+
+
+
 
 Take a look at [the rest of the code](src/psychedelia.js).
 
