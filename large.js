@@ -31,6 +31,13 @@ document.body.addEventListener('keyup', (event) => {
 
 document.body.addEventListener('keydown', (event) => {
   const keyName = event.key;
+  if (keyName == 'a') {
+    event.preventDefault();
+    event.stopPropagation();
+    const newValue = psy.updateBaseLevel();
+    base.textContent = newValue;
+    return;
+  }
   if (keyName == 'b') {
     event.preventDefault();
     event.stopPropagation();

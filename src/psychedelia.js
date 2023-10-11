@@ -18,10 +18,11 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
   let smoothingDelay = 0x0c;
   let currentSymmetrySettingForStep = 0x02;
   let currentPatternIndex = 0x00;
+  let baseLevel = COLOR_MAX;
 
   let pixelXPositionArray = new Array(ARRAY_SIZE).fill(0); 
   let pixelYPositionArray = new Array(ARRAY_SIZE).fill(0); 
-  let currentColorIndexArray = new Array(ARRAY_SIZE).fill(0);
+  let baseLevelArray = new Array(ARRAY_SIZE).fill(0);
   const initialFramesRemainingToNextPaintForStep  = new Array(ARRAY_SIZE).fill(MAX_SMOOTHING_DELAY);
   let framesRemainingToNextPaintForStep  = new Array(ARRAY_SIZE).fill(0);
                                                                 
@@ -31,7 +32,7 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
 
   let currentColorScheme = c.updateColorScheme();
 
-  function paintPixel(pixelXPos, pixelYPos, colorIndexForCurrentPixel) {
+  function paintPixel(pixelXPos, pixelYPos, baseLevelForCurrentPixel) {
     if (pixelXPos < 0) {
       return;
     }
@@ -50,13 +51,13 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
 
     const indexOfCurrentColor = presetColorValuesArray.indexOf(currentColorForPixel);
 
-    let cx = colorIndexForCurrentPixel + 1;
+    let cx = baseLevelForCurrentPixel + 1;
 
     if (cx < indexOfCurrentColor) {
       return;
     }
 
-    const newColor = presetColorValuesArray[colorIndexForCurrentPixel];
+    const newColor = presetColorValuesArray[baseLevelForCurrentPixel];
     pixel_matrix[x] = newColor;
 
     const rgba = currentColorScheme[newColor];
@@ -64,34 +65,34 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
     updateImage(o, rgba, pixelXPos, pixelYPos);
   }
 
-  function PaintPixelForCurrentSymmetry(pixelXPosition, pixelYPosition, colorIndexForCurrentPixel) {
-    paintPixel(pixelXPosition, pixelYPosition, colorIndexForCurrentPixel);
+  function PaintPixelForCurrentSymmetry(pixelXPosition, pixelYPosition, baseLevelForCurrentPixel) {
+    paintPixel(pixelXPosition, pixelYPosition, baseLevelForCurrentPixel);
 
     if (!currentSymmetrySettingForStep) {
       return;
     }
 
     const symmPixelXPosition = NUM_COLS - pixelXPosition;
-    paintPixel(symmPixelXPosition, pixelYPosition, colorIndexForCurrentPixel);
+    paintPixel(symmPixelXPosition, pixelYPosition, baseLevelForCurrentPixel);
 
     if (currentSymmetrySettingForStep == 0x01) {
       return;
     }
 
     const symmPixelYPosition = NUM_ROWS - pixelYPosition;
-    paintPixel(pixelXPosition, symmPixelYPosition, colorIndexForCurrentPixel);
+    paintPixel(pixelXPosition, symmPixelYPosition, baseLevelForCurrentPixel);
 
     if (currentSymmetrySettingForStep == 0x02) {
       return;
     }
 
-    paintPixel(symmPixelXPosition, symmPixelYPosition, colorIndexForCurrentPixel);
+    paintPixel(symmPixelXPosition, symmPixelYPosition, baseLevelForCurrentPixel);
   }
 
-  function LoopThroughPatternAndPaint(pixelXPosition, pixelYPosition, colorIndexForCurrentPixel) {
-    PaintPixelForCurrentSymmetry(pixelXPosition, pixelYPosition, colorIndexForCurrentPixel);
+  function LoopThroughPatternAndPaint(pixelXPosition, pixelYPosition, baseLevelForCurrentPixel) {
+    PaintPixelForCurrentSymmetry(pixelXPosition, pixelYPosition, baseLevelForCurrentPixel);
     
-    if (colorIndexForCurrentPixel == COLOR_MAX) {
+    if (baseLevelForCurrentPixel == COLOR_MAX) {
       return;
     }
 
@@ -105,7 +106,7 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
       pixelXPosition = (initialPixelXPosition + currentXPosArray[i]) & ARRAY_SIZE;
       pixelYPosition = (initialPixelYPosition + currentYPosArray[i]) & ARRAY_SIZE;
 
-      PaintPixelForCurrentSymmetry(pixelXPosition, pixelYPosition, colorIndexForCurrentPixel);
+      PaintPixelForCurrentSymmetry(pixelXPosition, pixelYPosition, baseLevelForCurrentPixel);
 
       i++;
       if (currentXPosArray[i] != 0x55) {
@@ -113,7 +114,7 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
       }
 
       countToMatchCurrentIndex--;
-      if (countToMatchCurrentIndex == colorIndexForCurrentPixel) {
+      if (countToMatchCurrentIndex == baseLevelForCurrentPixel) {
         break;
       }
       if (countToMatchCurrentIndex == 0x01) {
@@ -149,20 +150,19 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
       }
       framesRemainingToNextPaintForStep[currentIndexToPixelBuffers] = initialFramesRemainingToNextPaintForStep[currentIndexToPixelBuffers];
 
-      let colorTest = currentColorIndexArray[currentIndexToPixelBuffers];
       // Hitting 0xFF means we have decremented below zero for this phase.
-      if (currentColorIndexArray[currentIndexToPixelBuffers] == 0xFF) {
+      if (baseLevelArray[currentIndexToPixelBuffers] == 0xFF) {
         continue;
       }
 
-      let colorIndexForCurrentPixel = currentColorIndexArray[currentIndexToPixelBuffers];
+      let baseLevelForCurrentPixel = baseLevelArray[currentIndexToPixelBuffers];
 
       let pixelXPosition = pixelXPositionArray[currentIndexToPixelBuffers];
       let pixelYPosition = pixelYPositionArray[currentIndexToPixelBuffers];
 
-      LoopThroughPatternAndPaint(pixelXPosition, pixelYPosition, colorIndexForCurrentPixel);
+      LoopThroughPatternAndPaint(pixelXPosition, pixelYPosition, baseLevelForCurrentPixel);
 
-      currentColorIndexArray[currentIndexToPixelBuffers] = --currentColorIndexArray[currentIndexToPixelBuffers] & 0xFF;
+      baseLevelArray[currentIndexToPixelBuffers] = --baseLevelArray[currentIndexToPixelBuffers] & 0xFF;
 
       if (runs > BUFFER_LENGTH/2) {
         break;
@@ -184,13 +184,13 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
       indexIntoArrays = 0;
     }
 
-    if (currentColorIndexArray[indexIntoArrays] != 0xFF) {
+    if (baseLevelArray[indexIntoArrays] != 0xFF) {
       return;
     }
 
     pixelXPositionArray[indexIntoArrays] = cursorXPosition;
     pixelYPositionArray[indexIntoArrays] = cursorYPosition;
-    currentColorIndexArray[indexIntoArrays] = COLOR_MAX;
+    baseLevelArray[indexIntoArrays] = baseLevel;
     initialFramesRemainingToNextPaintForStep[indexIntoArrays] = smoothingDelay;
     framesRemainingToNextPaintForStep[indexIntoArrays] = smoothingDelay;
 
@@ -232,6 +232,15 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
   }
 
   /* Interface Functions */
+  function updateBaseLevel() {
+    const MAX_SETTINGS = 0x07;
+    baseLevel++;
+    if (baseLevel > MAX_SETTINGS) {
+      baseLevel = 0x01;
+    }
+    return baseLevel;
+  }
+
   function updateBufferLength() {
     const MAX_SETTINGS = 0xEFF;
     BUFFER_LENGTH += 0x80;
@@ -325,5 +334,6 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
     updatePattern: updatePattern,
     addMovements: addMovements,
     updateBufferLength: updateBufferLength,
+    updateBaseLevel: updateBaseLevel,
   };
 }
