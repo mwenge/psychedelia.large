@@ -5,8 +5,8 @@ A subset of [Psychedelia](https://github.com/mwenge/psychedelia) ported to Javas
 See also [Psychedelia.js](https://github.com/mwenge/psychedelia.js)
 
 Specifically this is an adaptation in Javascript of the version of Psychedelia
-that appeared as a type-in listing in 'Popular Computing Magazine' in December
-1984:
+that appeared as a [type-in listing in 'Popular Computing Magazine' in December
+1984](https://github.com/mwenge/psychedelia-listing):
 
 <img height=360 src="https://github.com/mwenge/psychedelia-listing/raw/master/listing/PopularComputing_Weekly_Issue_1984-12-13_0031.jpg"><img height=360 src="https://github.com/mwenge/psychedelia-listing/raw/master/listing/PopularComputing_Weekly_Issue_1984-12-13_0033.jpg">
 
