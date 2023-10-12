@@ -12,12 +12,12 @@
 // 
 
 import * as mandelbrot from './patterns/mandelbrot.js'
-import * as paisley from './patterns/paisley.js'
 import * as mistake from './patterns/mistake.js'
 import * as julia from './patterns/julia.js'
 import * as sheep from './patterns/sheep.js'
 import * as psy from './patterns/psych.js'
 import * as bull from './patterns/bull.js'
+import * as jeff from './patterns/jeff.js'
 export const patterns = [
   [bull.xArray, bull.yArray],
   [mistake.xArray, mistake.yArray],
@@ -25,13 +25,15 @@ export const patterns = [
   [mandelbrot.xArray, mandelbrot.yArray],
   [julia.xArray, julia.yArray],
   [psy.xArray, psy.yArray],
+  [jeff.xArray, jeff.yArray],
 ];
 export const names = [
   'Bull',
-  'Mistake',
-  'Sheep',
+  'NaN',
+  'Not a NaN',
   'Mandelbrot',
   'Julia',
   'Psych',
+  'Yak',
 ];
 
