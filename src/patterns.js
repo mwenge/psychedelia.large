@@ -19,23 +19,19 @@ import * as sheep from './patterns/sheep.js'
 import * as psy from './patterns/psych.js'
 import * as bull from './patterns/bull.js'
 export const patterns = [
-  [mandelbrot.xArray, mandelbrot.yArray],
+  [bull.xArray, bull.yArray],
   [mistake.xArray, mistake.yArray],
-  [julia.xArray, julia.yArray],
   [sheep.xArray, sheep.yArray],
+  [mandelbrot.xArray, mandelbrot.yArray],
+  [julia.xArray, julia.yArray],
   [psy.xArray, psy.yArray],
-  [bull.xArray, bull.yArray],
-  [mistake.xArray, mistake.yArray],
-  [bull.xArray, bull.yArray],
 ];
 export const names = [
-  'Mandelbrot',
+  'Bull',
   'Mistake',
-  'Julia',
   'Sheep',
+  'Mandelbrot',
+  'Julia',
   'Psych',
-  'Bull',
-  'Mistake',
-  'Bull',
 ];
 

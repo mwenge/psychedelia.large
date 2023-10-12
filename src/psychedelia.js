@@ -266,8 +266,10 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
 
   function updatePattern() {
     clearCanvas();
-    const MAX_SETTINGS = 0x07;
-    currentPatternIndex = ++currentPatternIndex & MAX_SETTINGS;
+    currentPatternIndex++
+    if (currentPatternIndex == pattern.patterns.length) {
+      currentPatternIndex = 0;
+    }
     [currentXPosArray, currentYPosArray] = pattern.patterns[currentPatternIndex];
     return pattern.names[currentPatternIndex];
   }
