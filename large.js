@@ -7,8 +7,8 @@ const arrowKeys = {
   'ArrowRight': 0x08,
 };
 
-const NUM_COLS = 0x3FF;
-const NUM_ROWS = 0x2FF;
+const NUM_COLS = Math.floor(visualViewport.width*0.6);
+const NUM_ROWS = Math.floor(visualViewport.height*0.7);
 const SCALE_FACTOR = 1;
 const DEMO_MODE = false;
 const ARRAY_SIZE = 0xFFF;
