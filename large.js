@@ -84,13 +84,6 @@ document.body.addEventListener('keydown', (event) => {
   psy.addMovements(keysPressed);
 });
 
-container.addEventListener('click', pressPausePlay);
-function pressPausePlay() {
-  let playing = psy.pausePlay();
-  pausePlay.innerHTML = (playing) ? "⏸":"▶" 
-  demo.textContent = (playing) ? "On" : "Off";
-}
-
 function createCanvas() {
   function updateImage(o, rgba, pixelXPos, pixelYPos) {
     for (var i=0; i<4; i++) {

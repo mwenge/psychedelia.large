@@ -17,11 +17,11 @@ body {
   font-style: normal;
 }
 .title {
-  font-size: 25px;
+  font-size: 2vw;
   color: white;
 }
 .intro {
-  font-size: 15px;
+  font-size: 1.5vw;
   color: white;
 }
 a {
@@ -41,7 +41,7 @@ a {
   left: 1%;
 }
 .panel-item {
-  font-size: 25px;
+  font-size: 1.5vw;
   color: white;
 }
 .button {
