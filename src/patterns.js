@@ -18,6 +18,8 @@ import * as sheep from './patterns/sheep.js'
 import * as psy from './patterns/psych.js'
 import * as bull from './patterns/bull.js'
 import * as jeff from './patterns/jeff.js'
+import * as penrose from './patterns/penrose.js'
+import * as mandala from './patterns/mandala.js'
 export const patterns = [
   [bull.xArray, bull.yArray],
   [mistake.xArray, mistake.yArray],
@@ -26,14 +28,18 @@ export const patterns = [
   [julia.xArray, julia.yArray],
   [psy.xArray, psy.yArray],
   [jeff.xArray, jeff.yArray],
+  [penrose.xArray, penrose.yArray],
+  [mandala.xArray, mandala.yArray],
 ];
 export const names = [
   'Bull',
-  'NaN',
+  'Scotch Mist',
   'Not a NaN',
   'Mandelbrot',
   'Julia',
   'Psych',
   'Yak',
+  'Penrose',
+  'Mandala',
 ];
 
