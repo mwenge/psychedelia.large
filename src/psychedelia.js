@@ -279,25 +279,45 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
     return DEMO_MODE;
   }
 
-  const MOVES = 25;
   let xMovements = [];
   let yMovements = [];
+  const MOVES = 25, FIRST_MOVES = 150;
   const movesUp = new Array(MOVES).fill(-1); 
   const movesDown = new Array(MOVES).fill(1); 
   const movesLeft = new Array(MOVES).fill(-1); 
   const movesRight = new Array(MOVES).fill(1); 
+  const firstMovesUp = new Array(FIRST_MOVES).fill(-1); 
+  const firstMovesDown = new Array(FIRST_MOVES).fill(1); 
+  const firstMovesLeft = new Array(FIRST_MOVES).fill(-1); 
+  const firstMovesRight = new Array(FIRST_MOVES).fill(1); 
   function addMovements(keys) {
     if (keys & 0x01) {
-      yMovements.push(...movesUp);
+      if (!yMovements.length) {
+        yMovements.push(...firstMovesUp);
+      } else {
+        yMovements.push(...movesUp);
+      }
     }
     if (keys & 0x02) {
-      yMovements.push(...movesDown);
+      if (!yMovements.length) {
+        yMovements.push(...firstMovesDown);
+      } else {
+        yMovements.push(...movesDown);
+      }
     }
     if (keys & 0x04) {
-      xMovements.push(...movesLeft);
+      if (!xMovements.length) {
+        xMovements.push(...firstMovesLeft);
+      } else {
+        xMovements.push(...movesLeft);
+      }
     }
     if (keys & 0x08) {
-      xMovements.push(...movesRight);
+      if (!xMovements.length) {
+        xMovements.push(...firstMovesRight);
+      } else {
+        xMovements.push(...movesRight);
+      }
     }
   }
 
