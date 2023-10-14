@@ -1,8 +1,8 @@
 import * as pattern from "./patterns.js";
 import * as c from './constants.js'
 
-export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, updateImage, clearCanvas, DEMO_MODE = false,
-                            ARRAY_SIZE = 64, BUFFER_LENGTH = 0x1F) {
+export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, updateImage, clearCanvas, getGamepadMovements,
+                            getGamepadButtons, DEMO_MODE = false, ARRAY_SIZE = 64, BUFFER_LENGTH = 0x1F) {
 
   const COLOR_MAX = 0x07;
   const MAX_ELEMENTS = 100;
@@ -169,8 +169,13 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
       }
     }
 
+    getGamepadButtons();
+    if (!DEMO_MODE) {
+      getGamepadMovements(addMovements);
+    }
     window.requestAnimationFrame(MainPaintLoop);
     updateCanvas();
+
   }
 
   let indexIntoArrays = 0;

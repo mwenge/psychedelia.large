@@ -68,3 +68,6 @@ a {
 .container:hover {
   cursor:pointer;
 }
+#log {
+  color:white;
+}

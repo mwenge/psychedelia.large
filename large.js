@@ -1,11 +1,5 @@
 import {psychedelia} from "./src/psychedelia.js";
-
-const arrowKeys = {
-  'ArrowUp':    0x01,
-  'ArrowDown':  0x02, 
-  'ArrowLeft':  0x04, 
-  'ArrowRight': 0x08,
-};
+import * as controls from "./src/controls.js";
 
 const NUM_COLS = Math.floor(visualViewport.width*0.6);
 const NUM_ROWS = Math.floor(visualViewport.height*0.7);
@@ -15,74 +9,13 @@ const ARRAY_SIZE = 0xFFF;
 const BUFFER_LENGTH = 0x780;
 
 let psy = largePsychedelia();
+controls.initializeControls(psy);
+
 symmetry.textContent = psy.updateSymmetry();
 pattern.textContent = psy.updatePattern();
 delay.textContent = psy.updateSmoothingDelay();
 buffer.textContent = psy.updateBufferLength();
 demo.textContent = (psy.pausePlay()) ? "On" : "Off";
-
-
-let keysPressed = 0x00;
-document.body.addEventListener('keyup', (event) => {
-  if (!event.repeat && arrowKeys[event.key]) {
-    keysPressed = keysPressed ^ arrowKeys[event.key];
-  }
-});
-
-document.body.addEventListener('keydown', (event) => {
-  const keyName = event.key;
-  if (keyName == 'a') {
-    event.preventDefault();
-    event.stopPropagation();
-    const newValue = psy.updateBaseLevel();
-    base.textContent = newValue;
-    return;
-  }
-  if (keyName == 'b') {
-    event.preventDefault();
-    event.stopPropagation();
-    const newValue = psy.updateBufferLength();
-    buffer.textContent = newValue;
-    return;
-  }
-  if (keyName == 's') {
-    event.preventDefault();
-    event.stopPropagation();
-    const newValue = psy.updateSymmetry();
-    symmetry.textContent = newValue;
-    return;
-  }
-  if (keyName == 'd') {
-    event.preventDefault();
-    event.stopPropagation();
-    const newValue = psy.updateSmoothingDelay();
-    delay.textContent = newValue;
-    return;
-  }
-  if (keyName == 'p') {
-    event.preventDefault();
-    event.stopPropagation();
-    const newValue = psy.updatePattern();
-    pattern.textContent = newValue;
-    return;
-  }
-  if (keyName == ' ' || keyName == 'o') {
-    event.preventDefault();
-    event.stopPropagation();
-    const newValue = psy.pausePlay();
-    demo.textContent = (newValue) ? "On" : "Off";
-    return;
-  }
-
-  if (!arrowKeys[keyName]) {
-    return
-  }
-
-  event.preventDefault();
-  event.stopPropagation();
-  keysPressed = keysPressed | arrowKeys[keyName];
-  psy.addMovements(keysPressed);
-});
 
 function createCanvas() {
   function updateImage(o, rgba, pixelXPos, pixelYPos) {
@@ -118,6 +51,7 @@ function createCanvas() {
 function largePsychedelia() {
   let c = createCanvas();
   container.appendChild(c.canvas);
-  return psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, c.updateCanvas, c.updateImage, c.clearCanvas, DEMO_MODE, ARRAY_SIZE, BUFFER_LENGTH);
+  return psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, c.updateCanvas, c.updateImage, c.clearCanvas, controls.getGamepadMovements,
+    controls.getGamepadButtons, DEMO_MODE, ARRAY_SIZE, BUFFER_LENGTH);
 }
 
