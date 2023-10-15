@@ -1,7 +1,7 @@
 import * as pattern from "./patterns.js";
 import * as c from './constants.js'
 
-export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, updateImage, clearCanvas, getGamepadMovements,
+export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvasFunc, updateImageFunc, clearCanvasFunc, getGamepadMovements,
                             getGamepadButtons, DEMO_MODE = false, ARRAY_SIZE = 64, BUFFER_LENGTH = 0x1F) {
 
   const COLOR_MAX = 0x07;
@@ -23,14 +23,37 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
   let pixelXPositionArray = new Array(ARRAY_SIZE).fill(0); 
   let pixelYPositionArray = new Array(ARRAY_SIZE).fill(0); 
   let baseLevelArray = new Array(ARRAY_SIZE).fill(0);
-  const initialFramesRemainingToNextPaintForStep  = new Array(ARRAY_SIZE).fill(MAX_SMOOTHING_DELAY);
+  let initialFramesRemainingToNextPaintForStep  = new Array(ARRAY_SIZE).fill(MAX_SMOOTHING_DELAY);
   let framesRemainingToNextPaintForStep  = new Array(ARRAY_SIZE).fill(0);
+  let updateCanvas = updateCanvasFunc;
+  let updateImage = updateImageFunc;
+  let clearCanvas = clearCanvasFunc;
                                                                 
   const presetColorValuesArray = [c.BLACK,c.BLUE,c.RED,c.PURPLE,c.GREEN,c.CYAN,c.YELLOW,c.WHITE];
 
   let pixel_matrix = new Array(NUM_COLS * NUM_ROWS).fill(0);
 
   let currentColorScheme = c.updateColorScheme();
+
+  // FIXME: Sometimes it seems the old canvas hasn't been totally discarded or we're trying to paint
+  // outside it.
+  let currFrame = null;
+  function relaunch(numCols, numRows, SCALE_FACTOR, updateCanvasFunc, updateImageFunc, clearCanvasFunc) {
+    cancelAnimationFrame(currFrame);
+
+    NUM_COLS = numCols;
+    NUM_ROWS = numRows;
+    updateCanvas = updateCanvasFunc;
+    updateImage = updateImageFunc;
+    clearCanvas = clearCanvasFunc;
+
+    pixel_matrix = new Array(NUM_COLS * NUM_ROWS).fill(0);
+
+    currentIndexToPixelBuffers = 0;
+    indexIntoArrays = 0;
+
+    currFrame = window.requestAnimationFrame(MainPaintLoop);
+  }
 
   function paintPixel(pixelXPos, pixelYPos, baseLevelForCurrentPixel) {
     if (pixelXPos < 0) {
@@ -173,9 +196,8 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
     if (!DEMO_MODE) {
       getGamepadMovements(addMovements);
     }
-    window.requestAnimationFrame(MainPaintLoop);
+    currFrame = window.requestAnimationFrame(MainPaintLoop);
     updateCanvas();
-
   }
 
   let indexIntoArrays = 0;
@@ -208,10 +230,8 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
 
   function LaunchPsychedelia() {
     [currentXPosArray, currentYPosArray] = pattern.patterns[currentPatternIndex];
-    window.requestAnimationFrame(MainPaintLoop);
+    currFrame = window.requestAnimationFrame(MainPaintLoop);
   }
-
-  LaunchPsychedelia();
 
   const oneOrZero = () => Math.floor(Math.random() * (1 - 0 + 1) + 0);
   const oneZeroOrMinusOne = () => Math.floor(Math.random() * (1 - -1 + 1) + -1);
@@ -351,6 +371,7 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
     }
   }
 
+  LaunchPsychedelia();
 
   return {
     updateXPos: updateXPos,
@@ -362,5 +383,6 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvas, upda
     addMovements: addMovements,
     updateBufferLength: updateBufferLength,
     updateBaseLevel: updateBaseLevel,
+    relaunch: relaunch,
   };
 }

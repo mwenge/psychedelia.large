@@ -1,13 +1,14 @@
 import {psychedelia} from "./src/psychedelia.js";
 import * as controls from "./src/controls.js";
 
-const NUM_COLS = Math.floor(visualViewport.width*0.6);
-const NUM_ROWS = Math.floor(visualViewport.height*0.7);
+let NUM_COLS = Math.floor(visualViewport.width*0.6);
+let NUM_ROWS = Math.floor(visualViewport.height*0.7);
 const SCALE_FACTOR = 1;
 const DEMO_MODE = false;
 const ARRAY_SIZE = 0xFFF;
 const BUFFER_LENGTH = 0x780;
 
+let currCanvas = null;
 let psy = largePsychedelia();
 controls.initializeControls(psy);
 
@@ -16,6 +17,29 @@ pattern.textContent = psy.updatePattern();
 delay.textContent = psy.updateSmoothingDelay();
 buffer.textContent = psy.updateBufferLength();
 demo.textContent = (psy.pausePlay()) ? "On" : "Off";
+
+visualViewport.addEventListener("resize", (e) => {
+  console.log("resize");
+  if (window.innerHeight == screen.height) {
+    NUM_COLS = visualViewport.width - 50;
+    NUM_ROWS = visualViewport.height - 50;
+    Array.from(document.getElementsByClassName("blurb")).forEach(x=>x.style.visibility = "hidden");
+  } else {
+    NUM_COLS = Math.floor(visualViewport.width*0.6);
+    NUM_ROWS = Math.floor(visualViewport.height*0.7);
+    Array.from(document.getElementsByClassName("blurb")).forEach(x=>x.style.visibility = "visible");
+  }
+
+  // FIXME: Are we doing everything we need to here to junk the old canvas?
+  currCanvas = null;
+  document.getElementById("canvas").remove();
+  let c = createCanvas();
+  currCanvas = c.canvas;
+  container.appendChild(c.canvas);
+
+  psy.relaunch(NUM_COLS, NUM_ROWS, SCALE_FACTOR, c.updateCanvas, c.updateImage, c.clearCanvas);
+
+});
 
 function createCanvas() {
   function updateImage(o, rgba, pixelXPos, pixelYPos) {
@@ -32,6 +56,7 @@ function createCanvas() {
     imageData = bufferCtx.createImageData(NUM_COLS * SCALE_FACTOR, NUM_ROWS * SCALE_FACTOR);
   }
   const canvas = document.createElement("canvas");
+  canvas.id = "canvas";
   const ctx = canvas.getContext("2d");
   canvas.width = NUM_COLS * SCALE_FACTOR;
   canvas.height = NUM_ROWS * SCALE_FACTOR;
@@ -50,6 +75,7 @@ function createCanvas() {
 
 function largePsychedelia() {
   let c = createCanvas();
+  currCanvas = c.canvas;
   container.appendChild(c.canvas);
   return psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, c.updateCanvas, c.updateImage, c.clearCanvas, controls.getGamepadMovements,
     controls.getGamepadButtons, DEMO_MODE, ARRAY_SIZE, BUFFER_LENGTH);
