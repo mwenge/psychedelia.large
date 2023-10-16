@@ -19,7 +19,6 @@ buffer.textContent = psy.updateBufferLength();
 demo.textContent = (psy.pausePlay()) ? "On" : "Off";
 
 visualViewport.addEventListener("resize", (e) => {
-  console.log("resize");
   if (window.innerHeight == screen.height) {
     NUM_COLS = visualViewport.width - 50;
     NUM_ROWS = visualViewport.height - 50;
@@ -42,7 +41,7 @@ visualViewport.addEventListener("resize", (e) => {
 });
 
 function createCanvas() {
-  function updateImage(o, rgba, pixelXPos, pixelYPos) {
+  function updateImage(o, rgba) {
     for (var i=0; i<4; i++) {
       imageData.data[(o*4)+i] = rgba[i];
     }

@@ -85,7 +85,7 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvasFunc, 
 
     const rgba = currentColorScheme[newColor];
     const o = ((pixelYPos * SCALE_FACTOR) * (NUM_COLS * SCALE_FACTOR)) + (pixelXPos * SCALE_FACTOR);
-    updateImage(o, rgba, pixelXPos, pixelYPos);
+    updateImage(o, rgba);
   }
 
   function PaintPixelForCurrentSymmetry(pixelXPosition, pixelYPosition, baseLevelForCurrentPixel) {
@@ -153,7 +153,7 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvasFunc, 
 
   let currentIndexToPixelBuffers = 0x00;
   function MainPaintLoop(timeStamp) {
-    let runs = 0;
+    let runs = 0, prevX = pixelXPositionArray[0], prevY = pixelYPositionArray[0], painted = false;
     while (true) {
       runs++;
       if (runs % Math.floor(BUFFER_LENGTH/8) == 0) {
@@ -183,7 +183,12 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvasFunc, 
       let pixelXPosition = pixelXPositionArray[currentIndexToPixelBuffers];
       let pixelYPosition = pixelYPositionArray[currentIndexToPixelBuffers];
 
-      LoopThroughPatternAndPaint(pixelXPosition, pixelYPosition, baseLevelForCurrentPixel);
+      if (pixelXPosition != prevX || pixelYPosition != prevY) {
+        LoopThroughPatternAndPaint(pixelXPosition, pixelYPosition, baseLevelForCurrentPixel);
+        painted = true;
+      }
+      prevX = pixelXPosition;
+      prevY = pixelYPosition;
 
       baseLevelArray[currentIndexToPixelBuffers] = --baseLevelArray[currentIndexToPixelBuffers] & 0xFF;
 
@@ -197,7 +202,7 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvasFunc, 
       getGamepadMovements(addMovements);
     }
     currFrame = window.requestAnimationFrame(MainPaintLoop);
-    updateCanvas();
+    if (painted) updateCanvas();
   }
 
   let indexIntoArrays = 0;
