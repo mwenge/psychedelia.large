@@ -41,18 +41,21 @@ export function psychedelia(NUM_COLS, NUM_ROWS, SCALE_FACTOR, updateCanvasFunc, 
   function relaunch(numCols, numRows, SCALE_FACTOR, updateCanvasFunc, updateImageFunc, clearCanvasFunc) {
     cancelAnimationFrame(currFrame);
 
-    NUM_COLS = numCols;
-    NUM_ROWS = numRows;
-    updateCanvas = updateCanvasFunc;
-    updateImage = updateImageFunc;
-    clearCanvas = clearCanvasFunc;
+    // Wait until the current MainPaintLoop has finished.
+    setTimeout(() => {
+      NUM_COLS = numCols;
+      NUM_ROWS = numRows;
+      updateCanvas = updateCanvasFunc;
+      updateImage = updateImageFunc;
+      clearCanvas = clearCanvasFunc;
 
-    pixel_matrix = new Array(NUM_COLS * NUM_ROWS).fill(0);
+      pixel_matrix = new Array(NUM_COLS * NUM_ROWS).fill(0);
 
-    currentIndexToPixelBuffers = 0;
-    indexIntoArrays = 0;
+      currentIndexToPixelBuffers = 0;
+      indexIntoArrays = 0;
 
-    currFrame = window.requestAnimationFrame(MainPaintLoop);
+      currFrame = window.requestAnimationFrame(MainPaintLoop);
+    }, 500);
   }
 
   function paintPixel(pixelXPos, pixelYPos, baseLevelForCurrentPixel) {

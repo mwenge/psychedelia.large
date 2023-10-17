@@ -19,24 +19,27 @@ buffer.textContent = psy.updateBufferLength();
 demo.textContent = (psy.pausePlay()) ? "On" : "Off";
 
 visualViewport.addEventListener("resize", (e) => {
-  if (window.innerHeight == screen.height) {
-    NUM_COLS = visualViewport.width - 50;
-    NUM_ROWS = visualViewport.height - 50;
-    Array.from(document.getElementsByClassName("blurb")).forEach(x=>x.style.visibility = "hidden");
-  } else {
-    NUM_COLS = Math.floor(visualViewport.width*0.6);
-    NUM_ROWS = Math.floor(visualViewport.height*0.7);
-    Array.from(document.getElementsByClassName("blurb")).forEach(x=>x.style.visibility = "visible");
-  }
+  // Wait until the new height and width are available.
+  setTimeout(() => {
+    if (window.innerHeight == screen.height) {
+      NUM_COLS = visualViewport.width - 50;
+      NUM_ROWS = visualViewport.height - 50;
+      Array.from(document.getElementsByClassName("blurb")).forEach(x=>x.style.visibility = "hidden");
+    } else {
+      NUM_COLS = Math.floor(visualViewport.width*0.6);
+      NUM_ROWS = Math.floor(visualViewport.height*0.7);
+      Array.from(document.getElementsByClassName("blurb")).forEach(x=>x.style.visibility = "visible");
+    }
 
-  // FIXME: Are we doing everything we need to here to junk the old canvas?
-  currCanvas = null;
-  document.getElementById("canvas").remove();
-  let c = createCanvas();
-  currCanvas = c.canvas;
-  container.appendChild(c.canvas);
+    // FIXME: Are we doing everything we need to here to junk the old canvas?
+    currCanvas = null;
+    document.getElementById("canvas").remove();
+    let c = createCanvas();
+    currCanvas = c.canvas;
+    container.appendChild(c.canvas);
 
-  psy.relaunch(NUM_COLS, NUM_ROWS, SCALE_FACTOR, c.updateCanvas, c.updateImage, c.clearCanvas);
+    psy.relaunch(NUM_COLS, NUM_ROWS, SCALE_FACTOR, c.updateCanvas, c.updateImage, c.clearCanvas);
+  }, 500);
 
 });
 
